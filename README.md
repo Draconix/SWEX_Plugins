@@ -7,9 +7,9 @@
 4. Restart SWEX
 
 ## Plugin Descriptions:
-*Battle Reminder* - This plugin alerts the user when SWEX detects the end of a x10 repeat battle or raid.  It alerts the user with a popup and a ding (disable in config).
+**Battle Reminder** - This plugin alerts the user when SWEX detects the end of a x10 repeat battle or raid.  It alerts the user with a popup and a ding (disable in config).
 
-More to come, please reach out for suggestions.
+**Suggestions** - Please reach out with ideas!
 
 ## Note
 Xzandro recommends .asar files for distribution (as opposed to folders).  This is ideal, and results in slightly smaller downloads. However, this has given me issues non-js dependencies (like the sound file used for the alert), so I'll use the unpackaged distributable until I find a solution.
