@@ -13,15 +13,15 @@ module.exports = {
     raidAlert: true,
     useSound: true,
     forceFront: true,
-    raidDelay: 10,
+    raidDelay: 15,
   },
   defaultConfigDetails: {
     dungeonAlert: { label: 'Repeat battle reminder' },
     raidAlert: { label: 'Raid reminder' },
     useSound: { label: 'Audio alert' },
-    forceFront: { label: 'Force front' },
+    forceFront: { label: 'Force window front' },
     raidDelay: { label: 'Time in seconds between raid boss defeat and alert. \
-                        (default 10s to skip animations):', type: 'textarea' },
+                        (default 15s to skip animations):', type: 'textarea' },
   },
   // Plugin meta data to better describe your plugin
   pluginName: 'Battle Reminder',
@@ -66,10 +66,10 @@ module.exports = {
         if (config.Config.Plugins[this.pluginName].raidAlert) {
 
           timeout = parseInt(config.Config.Plugins[this.pluginName].raidDelay) * 1000; // seconds to milis
-          // setTimeout( () => {
-          //     this.alert(proxy, 'Raid completed.')
-          // }, config.Config.Plugins[this.pluginName].raidDelay); 
-          setTimeout(this.alert(proxy, 'Raid completed.'), timeout); 
+          setTimeout( () => {
+              this.alert(proxy, 'Raid completed.')
+          }, timeout); 
+//           setTimeout(this.alert(proxy, 'Raid completed.'), timeout); 
         }
       });
     }
