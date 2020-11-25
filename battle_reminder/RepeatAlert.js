@@ -27,8 +27,10 @@ module.exports = {
   pluginName: 'Battle Reminder',
   pluginDescription: 'Alerts the user when selected runs are complete. Restart SWEX to enable. \
             \n\n\nPlugin by @dannybaker#2858 on discord, please contact me for issues.',
-  startBattle: 'BattleDungeonStart',
-  endBattle: 'BattleDungeonResult_V2',
+  startDungeon: 'BattleDungeonStart',
+  endDungeon: 'BattleDungeonResult_V2',
+  startScenario: 'BattleScenarioStart',
+  endScenario: 'BattleScenarioResult',
   endRaid: 'BattleRiftOfWorldsRaidResult',
   battleStarted: false, 
   timeout: 20000,
@@ -69,13 +71,24 @@ module.exports = {
       }
 
       // Start request just used to track run number
-      proxy.on(this.startBattle, (req, resp) => {
+      proxy.on(this.startDungeon, (req, resp) => {
+          this.battleStarted = true;
+          this.startedRun(proxy, req, resp);
+      });
+      proxy.on(this.startScenario, (req, resp) => {
           this.battleStarted = true;
           this.startedRun(proxy, req, resp);
       });
 
       // On end request, alert if no new start request comes within [timeout]
-      proxy.on(this.endBattle, (req, resp) => {
+      proxy.on(this.endDungeon, (req, resp) => {
+          this.battleStarted = false;
+
+          if (config.Config.Plugins[this.pluginName].dungeonAlert) {
+            this.awaitNewBattle(proxy, req, resp);
+          }
+      });
+      proxy.on(this.endScenario, (req, resp) => {
           this.battleStarted = false;
 
           if (config.Config.Plugins[this.pluginName].dungeonAlert) {
@@ -110,11 +123,13 @@ module.exports = {
     function startHandler() {
       this.battleStarted = true;
     }
-    proxy.on(this.startBattle, startHandler);
+    proxy.on(this.startDungeon, startHandler);
+    proxy.on(this.startScenario, startHandler);
 
     // If the flag is not received in time, remove listener and alert
     setTimeout( () => {
-      proxy.removeListener(this.startBattle, startHandler)
+      proxy.removeListener(this.startDungeon, startHandler)
+      proxy.removeListener(this.startScenario, startHandler)
       if( !this.battleStarted ) {
         this.alert(proxy, 'Runs completed.')
       }
