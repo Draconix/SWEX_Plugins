@@ -1,9 +1,9 @@
 // Plugin by @dannybaker#2858 on discord
 const { dialog, BrowserWindow } = require('electron')
-// const { BrowserWindow } = require('electron');
 const path = require('path');
-// var exec = require('exec'); 
-var player = require('play-sound')(opts = {})
+var player = require('play-sound')( opts = {
+  players: ['mplayer', 'wmplayer', 'vlc', 'nvlc', 'afplay', 'aplay', 'cmdmp3', 'sox'] 
+})
 
 
 module.exports = {
@@ -44,31 +44,23 @@ module.exports = {
       this.useSound = config.Config.Plugins[this.pluginName].useSound;
       this.forceFront = config.Config.Plugins[this.pluginName].forceFront;
       initMessage = 'Battle alert plugin initiated.  Please check settings tab for config options.' 
-      proxy.log({ type: 'info', source: 'plugin', name: this.pluginName, message: initMessage });
-      this.alert(proxy, 'Example notification.')
-      // Try other players if defaults fail
+      proxy.log({ type: 'info', source: 'plugin', name: this.pluginName, 
+        message: initMessage });
+      // Check if user has available audio players
       if(this.useSound){
+        let playerAvail = true;
         player.play(this.soundFile, { timeout: 300 }, function(err){
           if (err){
-            proxy.log({ type: 'debug', source: 'plugin', name: this.pluginName, message: err });
-            proxy.log({ type: 'info', source: 'plugin', name: this.pluginName, 
-              message: 'No default sound players, attempting others.' });
-
-            player.usePlayer('nvlc');
-            player.play(this.soundFile, { timeout: 300 }, function(err){
-            if (err){
-                player.usePlayer('sox');
-                player.play(this.soundFile, { timeout: 300 }, function(err){
-                  if (err){
-                    proxy.log({ type: 'info', source: 'plugin', name: this.pluginName, 
-                      message: 'No compatible player found.' });
-                  }
-                });
-              }
-            })
+            proxy.log({ type: 'error', source: 'plugin', name: 'Battle Reminder', 
+              message: 'No available command line audio players.  Disabling sound for now.  \
+                Check README for potential solutions.' });
+            playerAvail = false;
           }
         })
+        this.useSound = playerAvail;
       }
+      this.alert(proxy, 'Example notification.')
+      
 
       // Start request just used to track run number
       proxy.on(this.startDungeon, (req, resp) => {
@@ -137,15 +129,15 @@ module.exports = {
   },
 
   alert(proxy, message) {
-    proxy.log({ type: 'info', source: 'plugin', name: this.pluginName, message: message });
-
+    if(message != 'Example notification.'){
+      proxy.log({ type: 'info', source: 'plugin', name: this.pluginName, message: message });
+      // Already played sound on startup to test players
+      if (this.useSound){
+        proxy.log({ type: 'info', source: 'plugin', name: this.pluginName, message: this.useSound });
+        this.playSound(proxy);
+      } 
+    }
     this.displayPopup(proxy, message);
-    if (this.useSound){
-      this.playSound(proxy);
-    } 
-
-    // // Nice window, but it blocks 
-    // dialog.showErrorBox('Runs Completed', 'Repeat battle terminated, press OK to continue.');
   },
   playSound(proxy) {
     // Should work cross-platform
