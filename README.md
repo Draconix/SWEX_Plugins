@@ -11,9 +11,9 @@
 
 **Suggestions** - Please reach out with ideas!
 
-## Notes
+## Notes:
 
-### Known Issues
+### Known Issues:
 **No audio player** - Battle reminder relies on a command line media player in order to play the reminder ding.  OSX includes `afplay` by default but modern Windows installs do not.  There are a few options available.  The easiest options are to install [`VLC`](https://www.videolan.org/vlc/download-windows.html) or [`cmdmp3`](https://github.com/jimlawless/cmdmp3).  Once you have one of these installed, you need to add to path, [here's](https://www.architectryan.com/2018/03/17/add-to-the-path-on-windows-10/) a good tutorial on that but here are some general paths.
 1. Copy path to `cmdmp3.exe` or `VLC.exe`
 2. Open the 'environment variable' settings page
