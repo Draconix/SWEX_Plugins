@@ -2,13 +2,13 @@
 const { dialog, BrowserWindow } = require('electron')
 const path = require('path');
 var player = require('play-sound')( opts = {
-  players: ['mplayer', 'wmplayer', 'vlc', 'nvlc', 'afplay', 'aplay', 'cmdmp3', 'sox'] 
+  players: ['cmdmp3', 'mplayer', 'wmplayer', 'vlc', 'nvlc', 'afplay', 'aplay'] 
 })
 
 
 module.exports = {
   defaultConfig: {
-    enabled: false,
+    enabled: true,
     dungeonAlert: true,
     raidAlert: true,
     useSound: true,
@@ -31,7 +31,6 @@ module.exports = {
   endDungeon: 'BattleDungeonResult_V2',
   startScenario: 'BattleScenarioStart',
   endScenario: 'BattleScenarioResult',
-  endRaid: 'BattleRiftOfWorldsRaidResult',
   battleStarted: false, 
   timeout: 20000,
   useSound: true,
@@ -47,17 +46,13 @@ module.exports = {
       proxy.log({ type: 'info', source: 'plugin', name: this.pluginName, 
         message: initMessage });
       // Check if user has available audio players
-      if(this.useSound){
-        let playerAvail = true;
-        player.play(this.soundFile, { timeout: 300 }, function(err){
-          if (err){
-            proxy.log({ type: 'error', source: 'plugin', name: 'Battle Reminder', 
+      if(this.useSound) {
+        if(player.player == null) {
+            proxy.log({ type: 'warning', source: 'plugin', name: 'Battle Reminder', 
               message: 'No available command line audio players.  Disabling sound for now.  \
                 Check README for potential solutions.' });
-            playerAvail = false;
+            this.useSound = false;
           }
-        })
-        this.useSound = playerAvail;
       }
       this.alert(proxy, 'Example notification.')
       
@@ -130,18 +125,16 @@ module.exports = {
 
   alert(proxy, message) {
     if(message != 'Example notification.'){
-      proxy.log({ type: 'info', source: 'plugin', name: this.pluginName, message: message });
-      // Already played sound on startup to test players
-      if (this.useSound){
-        proxy.log({ type: 'info', source: 'plugin', name: this.pluginName, message: this.useSound });
-        this.playSound(proxy);
-      } 
+      proxy.log({ type: 'success', source: 'plugin', name: this.pluginName, message: message });
     }
+    if (this.useSound){
+        this.playSound(proxy);
+    } 
     this.displayPopup(proxy, message);
   },
   playSound(proxy) {
     // Should work cross-platform
-    player.play(this.soundFile, { timeout: 300 }, function(err){
+    player.play(this.soundFile, { timeout: 300, vlc: ['-I dummy --dummy-quiet' ] }, function(err){
       if (err){
         proxy.log({ type: 'error', source: 'plugin', name: this.pluginName, message: err });
       }
