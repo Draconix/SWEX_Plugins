@@ -31,6 +31,10 @@ module.exports = {
   endDungeon: 'BattleDungeonResult_V2',
   startScenario: 'BattleScenarioStart',
   endScenario: 'BattleScenarioResult',
+  endRift: 'BattleRiftDungeonResult',
+  startDHole: 'BattleDimensionHoleDungeonStart',
+  endDHole: 'BattleDimensionHoleDungeonResult_v2',
+  endRaid: 'BattleRiftOfWorldsRaidResult',
   battleStarted: false, 
   timeout: 20000,
   useSound: true,
@@ -66,6 +70,10 @@ module.exports = {
           this.battleStarted = true;
           this.startedRun(proxy, req, resp);
       });
+      proxy.on(this.startDHole, (req, resp) => {
+          this.battleStarted = true;
+          this.startedRun(proxy, req, resp);
+      });
 
       // On end request, alert if no new start request comes within [timeout]
       proxy.on(this.endDungeon, (req, resp) => {
@@ -76,6 +84,20 @@ module.exports = {
           }
       });
       proxy.on(this.endScenario, (req, resp) => {
+          this.battleStarted = false;
+
+          if (config.Config.Plugins[this.pluginName].dungeonAlert) {
+            this.awaitNewBattle(proxy, req, resp);
+          }
+      });
+      proxy.on(this.endRift, (req, resp) => {
+          this.battleStarted = false;
+
+          if (config.Config.Plugins[this.pluginName].dungeonAlert) {
+            this.awaitNewBattle(proxy, req, resp);
+          }
+      });
+      proxy.on(this.endDHole, (req, resp) => {
           this.battleStarted = false;
 
           if (config.Config.Plugins[this.pluginName].dungeonAlert) {
