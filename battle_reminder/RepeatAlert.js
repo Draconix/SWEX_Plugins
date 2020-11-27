@@ -10,18 +10,21 @@ module.exports = {
   defaultConfig: {
     enabled: true,
     dungeonAlert: true,
-    raidAlert: true,
+    singleRaidAlert: true,
     useSound: true,
     forceFront: true,
     raidDelay: 10,
+    raidNum: 9,
   },
   defaultConfigDetails: {
     dungeonAlert: { label: 'Repeat battle reminder' },
-    raidAlert: { label: 'Raid reminder' },
+    singleRaidAlert: { label: 'Raid reminder' },
     useSound: { label: 'Audio alert' },
     forceFront: { label: 'Force window front' },
-    raidDelay: { label: 'Time in seconds between raid boss defeat and alert. \
+    raidDelay: { label: '[SINGLE RAID] Time in seconds between raid boss defeat and alert. \
                         (default 10s to skip animations):', type: 'textarea' },
+    raidNum: { label: '[REPEAET RAID] Run number for alert. \
+                        (default 9 for time to sell grinds):', type: 'textarea' },
   },
   // Plugin meta data to better describe your plugin
   pluginName: 'Battle Reminder',
@@ -38,6 +41,7 @@ module.exports = {
   battleStarted: false, 
   timeout: 20000,
   useSound: true,
+  raidNum: 9,
   soundFile: path.join(__dirname, 'ding.mp3'),
 
   init(proxy, config) {
@@ -46,6 +50,7 @@ module.exports = {
       // Login items
       this.useSound = config.Config.Plugins[this.pluginName].useSound;
       this.forceFront = config.Config.Plugins[this.pluginName].forceFront;
+      this.raidNum = parseInt(config.Config.Plugins[this.pluginName].raidNum);
       initMessage = 'Battle alert plugin initiated.  Please check settings tab for config options.' 
       proxy.log({ type: 'info', source: 'plugin', name: this.pluginName, 
         message: initMessage });
@@ -108,7 +113,7 @@ module.exports = {
       // On raid end, alert (with delay for animation)
       proxy.on(this.endRaid, (req, resp) => {
 
-        if (config.Config.Plugins[this.pluginName].raidAlert) {
+        if (config.Config.Plugins[this.pluginName].singleRaidAlert) {
 
           timeout = parseInt(config.Config.Plugins[this.pluginName].raidDelay) * 1000; // seconds to milis
           setTimeout( () => {
@@ -116,6 +121,7 @@ module.exports = {
           }, timeout); 
 //           setTimeout(this.alert(proxy, 'Raid completed.'), timeout); 
         }
+        this.raidHandler(proxy, req);
       });
     }
   },
@@ -140,9 +146,14 @@ module.exports = {
       proxy.removeListener(this.startDungeon, startHandler)
       proxy.removeListener(this.startScenario, startHandler)
       if( !this.battleStarted ) {
-        this.alert(proxy, 'Runs completed.')
+        this.alert(proxy, 'Runs completed.');
       }
     }, this.timeout); 
+  },
+  raidHandler(proxy, req) {
+    if( req.auto_repeat == this.raidNum ){
+      this.alert(proxy, 'Raids completed');
+    }
   },
 
   alert(proxy, message) {
