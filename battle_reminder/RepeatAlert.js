@@ -18,13 +18,13 @@ module.exports = {
   },
   defaultConfigDetails: {
     dungeonAlert: { label: 'Repeat battle reminder' },
-    singleRaidAlert: { label: 'Raid reminder' },
+    singleRaidAlert: { label: 'Alert on single raid' },
     useSound: { label: 'Audio alert' },
     forceFront: { label: 'Force window front' },
     raidDelay: { label: '[SINGLE RAID] Time in seconds between raid boss defeat and alert. \
                         (default 10s to skip animations):', type: 'textarea' },
-    raidNum: { label: '[REPEAET RAID] Run number for alert. \
-                        (default 9 for time to sell grinds):', type: 'textarea' },
+    raidNum: { label: '[REPEAT RAID] Run number for alert. \
+                        (default 9 for time to sell grinds):', type: 'textarea' }
   },
   // Plugin meta data to better describe your plugin
   pluginName: 'Battle Reminder',
@@ -120,8 +120,9 @@ module.exports = {
               this.alert(proxy, 'Raid completed.')
           }, timeout); 
 //           setTimeout(this.alert(proxy, 'Raid completed.'), timeout); 
+        } else {
+          this.raidHandler(proxy, req);
         }
-        this.raidHandler(proxy, req);
       });
     }
   },
